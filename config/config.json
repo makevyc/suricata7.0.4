@@ -1,0 +1,12 @@
+{
+   "nic": ["eth0"],
+   "vir_nic": ["agent-tap0"],
+   "mirror_filter": {
+       "filter_mode": "in",
+       "rule": ""
+   },
+   "proto": {
+       "vlan": false,
+       "vxlan": false
+   }
+}

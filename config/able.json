@@ -1,0 +1,43 @@
+{
+    "name": "suricata",
+    "version": "v1.6.0-commitid",
+    "dependencies": ["webserver", "agent-server", "tls-decoder"],
+    "lifecycle": {
+        "install": {
+            "previous": "echo 'start install suricata'",
+            "after": "echo 'suricata install complete'",
+            "command": "./scripts/install.sh",
+	        "retry": 3,
+            "timeout": 7200
+        },
+        "upgrade": {
+            "previous": "echo 'start upgrade suricata'",
+            "after": "echo 'suricata upgrade complete'",
+            "command": "./scripts/upgrade.sh",
+	        "retry": 3,
+            "timeout": 7200
+        },
+        "uninstall": {
+            "previous": "echo 'start uninstall suricata'",
+            "after": "echo 'suricata uninstall complete'",
+            "command": "./scripts/uninstall.sh",
+	        "retry": 3,
+            "timeout": 7200
+        },
+        "commit": {
+            "previous": "echo 'start commit suricata'",
+            "after": "echo 'suricata commit complete'",
+            "command": "./scripts/commit.sh",
+	        "retry": 3,
+            "timeout": 120
+        },
+        "rollback": {
+            "previous": "echo 'start rollback suricata'",
+            "after": "echo 'suricata rollback complete'",
+            "command": "./scripts/rollback.sh",
+	        "retry": 3,
+            "timeout": 7200
+        }
+    },
+    "protocol_version": "1"
+}

@@ -1,0 +1,30 @@
+name: 发布流水线
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-20.04-arm64-v1
+    steps:
+      - name: 准备工作
+        run: |
+          echo "prepare"
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 执行构建
+        run: |
+          git submodule update --init --recursive
+          rm -rf /hostdata/kylin/aarch64/mirror/suricata
+          cp -rf "$(pwd)" /hostdata/kylin/aarch64/mirror/suricata
+          docker run --rm --privileged -v /root/data/kylin/aarch64/mirror/suricata:/code -v /root/data/kylin/aarch64/mirror/depends:/depends -w /code registry.sr.ok/srhino-cpp/mirror-kylin-v10sp2-arm64:v1 sh -c "tar xf /depends/cargo-arm.tar.gz -C /root && ./scripts/build.sh && ./scripts/package.sh"
+          ls -l /hostdata/kylin/aarch64/mirror/suricata/package/suricata-*.tar.gz
+          cp /hostdata/kylin/aarch64/mirror/suricata/package/suricata-*.tar.gz .
+          echo "构建状态: ${{ job.status }}"
+      - name: 上传产物
+        uses: actions/release-action@main
+        with:
+          api_key: '${{ secrets.GITEA_TOKEN }}'
+          files: |-
+            ./suricata-*.tar.gz

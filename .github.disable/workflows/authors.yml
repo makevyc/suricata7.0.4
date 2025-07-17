@@ -1,0 +1,42 @@
+name: New Authors Check
+
+on:
+  pull_request:
+
+jobs:
+  check-id:
+    name: New Author Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - run: sudo apt -y install git
+      - name: Export known authors from master branch
+        run: git log --format="%an <%ae>" origin/master | sort | uniq > authors.txt
+      - name: Export authors from new commits
+        run: git log --format="%an <%ae>" origin/${GITHUB_BASE_REF}... | sort | uniq > commit-authors.txt
+      - name: Check new authors
+        run: |
+          touch new-authors.txt
+          while read -r author; do
+             echo "Checking author: ${author}"
+             if ! grep -q "^${author}\$" authors.txt; then
+                 echo "ERROR: ${author} NOT FOUND"
+                 echo "::warning ::New author found: ${author}"
+                 echo "${author}" >> new-authors.txt
+                 echo has_new_authors="yes" >> $GITHUB_ENV
+             fi
+          done < commit-authors.txt
+      - run: mkdir new-authors
+      - run: cp new-authors.txt new-authors
+      - run: echo ${{ github.event.number }} > new-authors/pr-number.txt
+      - run: ls -l
+      - name: Upload new authors
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: new-authors
+          path: new-authors
+

@@ -1,0 +1,34 @@
+name: 发布流水线
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-agent-server-v1
+    steps:
+      - name: 准备工作
+        run: |
+          tar xf /hostdata/ubuntu/x86_64/dep/suricata/cargo.tar.gz -C /root/
+          tar xf /hostdata/ubuntu/x86_64/go1.23.4.linux-amd64.tar.gz -C /opt
+          ln -s /opt/go/bin/go /usr/bin/go
+          ln -s /opt/go/bin/gofmt /usr/bin/gofmt
+          go version
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 执行构建
+        run: |
+          set -x
+          git submodule update --init --recursive
+          bash ./scripts/build.sh
+          bash ./scripts/package.sh
+          ls -l src/.libs/suricata
+          ls -l package/suricata-*.tar.gz
+          echo "构建状态: ${{ job.status }}"
+      - name: 上传产物
+        uses: actions/release-action@main
+        with:
+          api_key: '${{ secrets.GITEA_TOKEN }}'
+          files: |-
+            ./package/suricata-*.tar.gz

@@ -1,0 +1,12 @@
+{
+ "https":{
+   "enable":false,
+   "interface":"tls-tap",
+   "interface_count": 4
+ },
+ "agent":{
+   "enable":true,
+   "interface":"agent-tap",
+   "interface_count": 4
+ }
+}

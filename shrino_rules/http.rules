@@ -1,0 +1,2 @@
+alert http any any -> any any (msg:"Lua script detect response body"; flow:to_client; lua:detect.lua; sid:1000001;)
+alert http any any -> any any (msg:"Lua script detect http length 0"; flow:to_client; lua:detect-len0.lua; sid:1000002;)
